@@ -1,0 +1,74 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    COPY-PASTE DATABASE MIGRATION                              ║
+║                              (3 SIMPLE STEPS)                                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+STEP 1: OPEN THIS URL
+═══════════════════════════════════════════════════════════════════════════════
+
+https://supabase.com/dashboard/project/ecksfrhzvfzmfdhhnses/sql
+
+
+STEP 2: COPY THIS SQL (everything below the line)
+═══════════════════════════════════════════════════════════════════════════════
+
+ALTER TABLE members
+ADD COLUMN IF NOT EXISTS all_time_xp INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS login_streak INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS last_login_date TEXT,
+ADD COLUMN IF NOT EXISTS login_history TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS xp_history TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS quests_done TEXT[] DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS daily_completions JSONB DEFAULT '{}',
+ADD COLUMN IF NOT EXISTS gem_hi_score INT DEFAULT 0,
+ADD COLUMN IF NOT EXISTS challenges_done TEXT[] DEFAULT '{}';
+
+CREATE INDEX IF NOT EXISTS idx_members_login_streak ON members(login_streak DESC);
+CREATE INDEX IF NOT EXISTS idx_members_last_login ON members(last_login_date);
+
+CREATE OR REPLACE FUNCTION award_xp(
+  p_member_id UUID,
+  p_amount INT,
+  p_action_type TEXT,
+  p_entity_type TEXT DEFAULT NULL,
+  p_entity_id UUID DEFAULT NULL
+)
+RETURNS void AS $$
+BEGIN
+  UPDATE members
+  SET total_xp = total_xp + p_amount,
+      monthly_xp = monthly_xp + p_amount,
+      all_time_xp = all_time_xp + p_amount,
+      updated_at = NOW()
+  WHERE id = p_member_id;
+
+  INSERT INTO activity_log (member_id, action_type, entity_type, entity_id, xp_amount)
+  VALUES (p_member_id, p_action_type, p_entity_type, p_entity_id, p_amount);
+END;
+$$ LANGUAGE plpgsql;
+
+
+STEP 3: PASTE INTO SUPABASE & RUN
+═══════════════════════════════════════════════════════════════════════════════
+
+In the Supabase dashboard:
+1. Click "New Query" button
+2. Paste the SQL above
+3. Click "Run" button (blue button on right)
+4. Wait for green ✅ "Success" message
+
+DONE! ✅
+
+
+THEN BUILD & TEST
+═══════════════════════════════════════════════════════════════════════════════
+
+cd C:\risely-app
+npm run build
+npm run start
+
+Open http://localhost:3000 → Sign up → Claim daily reward → Refresh page → Verify it persists!
+
+
+THAT'S IT! 🚀
+═══════════════════════════════════════════════════════════════════════════════

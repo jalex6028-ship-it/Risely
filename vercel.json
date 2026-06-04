@@ -1,0 +1,22 @@
+{
+  "projectSettings": {
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": ".next",
+    "devCommand": "npm run dev"
+  },
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": {
+      "description": "Your Supabase project URL"
+    },
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
+      "description": "Your Supabase anonymous key"
+    },
+    "SUPABASE_SERVICE_ROLE_KEY": {
+      "description": "Your Supabase service role key (for server-side)"
+    }
+  },
+  "buildOutputDirectory": ".next",
+  "framework": "nextjs",
+  "nodejs": "18.x"
+}
